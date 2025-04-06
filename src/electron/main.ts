@@ -22,9 +22,9 @@ app.on('ready', () => {
     const contestId="Test"
     const contentId="Test"
     mainWindow.webContents.on('did-finish-load', () => {
-        const cb_auth = "Test";
-        const contestId = "Test";
-        const contentId = "Test";
+        const cb_auth = "cb";
+        const contestId = "6";
+        const contentId = "2";
         console.log("Sending deep-link-data event");
         mainWindow.webContents.send("deep-link-data", { cb_auth, contestId, contentId });
     });
