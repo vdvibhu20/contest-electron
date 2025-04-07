@@ -2,7 +2,7 @@
 
 const Contests = () => {
   return (
-    <div>
+    <div className="">
       contests will show here
     </div>
   )

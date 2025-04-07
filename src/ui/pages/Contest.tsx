@@ -95,7 +95,11 @@ console.log('SolutionStubQuery', solutionStubQuery);
 	const content = contentByIdQuery.data;
 	console.log('Contest', contest);
 	console.log('Content', content);
+	const handleCloseApp = () => {
 
+		window.electron.closeApp(); 
+	  };
+	 
 	return (
 		<div>
 			<div className="bg-dark-1 p-5 border-b border-dark-0">
@@ -125,6 +129,11 @@ console.log('SolutionStubQuery', solutionStubQuery);
 						>
 							Submit
 						</Button>
+						<button	onClick={handleCloseApp}
+							className="ml-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg transition-all duration-200"
+							>
+							x
+						</button>
 					</div>
 				</div>
 			</div>

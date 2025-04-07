@@ -10,7 +10,7 @@ export default function NavBar({ contentId, contestId }: { contentId: string; co
     <nav className="bg-gray-800 text-white p-4 flex justify-between">
       <div className="text-lg font-bold">My Electron App</div>
       <div className="flex gap-4">
-        <Link to="/" className="hover:underline">Attemp</Link>
+        <Link to="/" className="hover:underline">Home</Link>
         <Link to={`/contests/${contestId}`}>contest</Link>
         <Link to={`/contests/${contestId}/attempt/${contentId}`} className="hover:underline">Attempt</Link>
         <button
