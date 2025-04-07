@@ -6,3 +6,9 @@ interface Window {
      
     }
   }
+
+  declare module 'vite-plugin-eslint' {
+    // Add your type definitions here
+    const eslintPlugin: (options?: any) => any;
+    export default eslintPlugin;
+  }
