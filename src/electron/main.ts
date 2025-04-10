@@ -14,6 +14,7 @@ function createWindow(): void {
     titleBarStyle: 'hidden',
     webPreferences: {
       preload: getPreloadPath(),
+
     },
   });
 
@@ -94,9 +95,15 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 
-  if (process.argv.length > 1) {
-    handleDeepLink(process.argv[1]);
+  // if (process.argv.length > 1) {
+  //   handleDeepLink(process.argv[1]);
+  // }
+  const deepLinkArg = process.argv.find(arg => arg.startsWith("electron-app://"));
+  if (deepLinkArg) {
+    handleDeepLink(deepLinkArg);
   }
+
+
 });
 
 app.on("window-all-closed", () => {
