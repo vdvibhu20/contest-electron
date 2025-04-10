@@ -17,6 +17,7 @@
     "dist:linux": "npm run transpile:electron && npm run build && electron-builder --linux --x64"
   },
   "dependencies": {
+    "@electron-toolkit/utils": "^4.0.0",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@headlessui/react": "^2.2.1",
@@ -70,4 +71,5 @@
     "vite": "^6.2.0",
     "vite-plugin-eslint": "^1.8.1"
   }
+ 
 }

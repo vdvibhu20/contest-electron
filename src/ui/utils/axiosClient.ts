@@ -5,7 +5,7 @@ export default function createAxiosClient({
   baseURL = import.meta.env.VITE_API_ENDPOINT, 
 } = {}) {
   const cookie = localStorage.getItem('cb_auth')
-  // console.log('cookie', cookie)
+  console.log('cookie', cookie)
 // console.log('baseURL: ' + baseURL)
 const client = axios.create({
     baseURL,
@@ -27,12 +27,12 @@ const client = axios.create({
 
     return config;
   });
-  // client.interceptors.request.use(function (config) {
-  //   config.paramsSerializer = function (params) {
-  //     return qs.stringify(params, { arrayFormat: "brackets" });
-  //   };
-  //   return config;
-  // });
+  client.interceptors.request.use(function (config) {
+    config.paramsSerializer = function (params) {
+      return qs.stringify(params, { arrayFormat: "brackets" });
+    };
+    return config;
+  });
 
   client.interceptors.response.use(
     function (response) {

@@ -8,9 +8,16 @@
     },
     "linux": {
       "target": "AppImage",
-      "category": "Utility"
+      "category": "Utility",
+      "executableName": "contest",
+      "protocols": [
+        {
+          "name": "Contest",
+          "schemes": ["electron-app"]
+        }
+      ]
     },
     "win": {
-      "target": ["portable", "msi"]
+      "target": ["nsis"]
     }
   }
