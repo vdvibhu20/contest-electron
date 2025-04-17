@@ -1,0 +1,39 @@
+name: Build Electron App
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+  pull_request:
+    branches:
+      - main  # Trigger on PR to main branch
+
+jobs:
+  build:
+    runs-on: macos-latest  # This ensures the job runs on a macOS runner
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js (you can specify a specific version like "16.x" if you need to)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # You can change this to the Node.js version you need
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install --omit=optional
+
+      # Build the Electron app
+      - name: Build Electron App for macOS
+        run: npm run dist:mac  # This should run the script defined in your package.json
+
+      # Upload the built .dmg file as an artifact
+      - name: Upload .dmg artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: electron-dmg
+          path: dist/*.dmg  # Path to the .dmg file that is created by the build process
