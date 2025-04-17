@@ -71,5 +71,10 @@
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",
     "vite-plugin-eslint": "^1.8.1"
+  },
+  "build":{
+    "mac":{
+      "sign":false
+    }
   }
 }
