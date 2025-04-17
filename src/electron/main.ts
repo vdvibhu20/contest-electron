@@ -3,8 +3,7 @@ import path from 'path';
 import { isDev } from './util.js';
 import { getPreloadPath } from './pathResolver.js';
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
-import localShortcut from 'electron-localshortcut';
-import { platform } from 'os';
+let tabChangeCount=0;
 console.log()
 let mainWindow: Electron.BrowserWindow | null;
 let deepLinkData: { cb_auth: string; contestId: string; contentId: string } | null = null;
@@ -54,9 +53,9 @@ function createWindow(): void {
 
   if (isDev()) {
     mainWindow.loadURL('http://localhost:5173');
-    let cb_auth=''
-  let contestId = '';
-  let contentId = '';
+    let cb_auth='eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJ1c2VybmFtZSI6InNwYXJzaGdvZWxrIiwiZmlyc3RuYW1lIjoiU3BhcnNoIiwibGFzdG5hbWUiOiJHb2VsIiwiZ2VuZGVyIjoiTUFMRSIsInBob3RvIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jS3R2SUNXWTRHcHJucFhTWkxpVmY2bi1pdTNablFlTkRrNUJEaFJIQ2pqdlBBWTFmT1c9czk2LWMiLCJlbWFpbCI6InNwYXJzaGdvZWxrQGdtYWlsLmNvbSIsIm1vYmlsZV9udW1iZXIiOiIrOTEtOTMxOTU1MTYwOCIsIndoYXRzYXBwX251bWJlciI6bnVsbCwicm9sZSI6bnVsbCwidmVyaWZpZWRlbWFpbCI6InNwYXJzaGdvZWxrQGdtYWlsLmNvbSIsInZlcmlmaWVkbW9iaWxlIjpudWxsLCJyZWZlcnJhbENvZGUiOiJTUEExSkoiLCJyZWZlcnJlZEJ5IjpudWxsLCJncmFkdWF0aW9uWWVhciI6MjAyNSwiYXBwYXJlbEdvb2RpZXNTaXplIjpudWxsLCJtYXJrZXRpbmdfbWV0YSI6bnVsbCwiY3JlYXRlZEF0IjoiMjAyNS0wMi0xMlQxMDoyMzo1My40MjRaIiwidXBkYXRlZEF0IjoiMjAyNS0wMi0xMlQxMDoyNDozNC44MjFaIiwiZGVsZXRlZEF0IjpudWxsLCJjbGllbnQiOiJ3ZWIiLCJjbGllbnROYW1lIjoibG9jYWxob3N0IiwiY2xpZW50SWQiOiIxMjM0NTY3ODkwIiwidXVpZCI6IjI0YzcxMjY5LTI3YWEtNGM2OC1iMWYwLWY1NzJkYzc1YWVkYiIsInNlc3Npb25TdGFydGVkQXQiOiIyMDI1LTA0LTE3VDA3OjMxOjM2Ljc3OFoiLCJpYXQiOjE3NDQ4NzUwOTYsImV4cCI6MTc0NDk2MTQ5Nn0.BI8Z8LjOrg5GBxyAZ1Aox1Jb2VtZSOYMdEaQPKqzdNQj1KSfvzYI5kIyz7NALHYKqzcrJN4IT-3xnAA5B5PVenMCVmStPwZxG2tyl7c07sITgMFIPGnEfUMkS6xRqOROTylQNJOC_8LgnKCrGSnLwp9q5MWM7tK7uhH7wctruEN94JA6LM31ZHhoY6-CrOFsP14jlKIx3Z2hoS_ufWpmyBuJoo75ZeHblYTN6b0-I9MBH-yA-Yi9XYs93HkJv6kQQg9cTF1DJglR-9QcodfDKttR8qhuXWmF1H8vep4RJlJyvYCvwT_wq4rDnDC9hWG7kc2FG5E6v3edm6bhZ4o6gw'
+  let contestId = '11';
+  let contentId = '3';
   mainWindow.webContents.on('did-finish-load', () => {
     console.log("Sending deep-link-data event");
     mainWindow?.webContents.send("deep-link-data", { cb_auth, contestId, contentId });
@@ -74,9 +73,9 @@ function handleDeepLink(url: string) {
   console.log('Received deep link:', url);
 //  let url='electron-app://contest?cb_auth=test&one_auth=test&contestId=6&contentId=1'
   const params = new URLSearchParams(new URL(url).search);
-  let cb_auth = params.get("cb_auth") || "test"
-  let contestId = params.get("contestId") || "test"
-  let contentId = params.get("contentId") || "test"
+  let cb_auth = params.get("cb_auth") || ""
+  let contestId = params.get("contestId") || ""
+  let contentId = params.get("contentId") || ""
   console.log('CB Auth:', cb_auth);
   console.log('Contest ID:', contestId);
   console.log('Content ID:', contentId);
@@ -140,10 +139,14 @@ if (!gotTheLock) {
     
     //test
     mainWindow?.on('focus', () => {
+
       console.log('Window is focused');
+      mainWindow?.setAlwaysOnTop(true);
     });
     
     mainWindow?.on('blur', () => {
+      tabChangeCount++;
+      console.log(`tab changed ${tabChangeCount}`);
       console.log('Window lost focus');
       mainWindow?.setAlwaysOnTop(true);
     });
@@ -157,12 +160,11 @@ if (!gotTheLock) {
           type: 'warning',
           buttons: ['OK'],
           title: 'Warning',
-          message: 'Don\'t try to change tabs when you are attending a contest!',
+          message: 'Youve changed your tab during contest! Contest Submitted Automatically',
           noLink: true,
         });
     
-        mainWindow?.setAlwaysOnTop(true);
-        mainWindow?.focus();
+        app.quit()
       });
     
     
