@@ -16,6 +16,7 @@ import { parseISO } from 'date-fns';
 import { useEffect, useState } from 'react';
 import ProblemLoader from '../components/ProblemLoader';
 import { useNavigate } from 'react-router-dom';
+import Loader from '../components/Loader';
 
 export default function ContestAttemptPage() {
 const navigate=useNavigate()
@@ -78,7 +79,7 @@ console.log('SolutionStubQuery', solutionStubQuery);
 		contentByIdQuery.isIdle ||
 		contentByIdQuery.isError
 	) {
-		return null;
+		return <Loader/>;
 	}
 
 	// If the user is unauthenticated or the user does not have contest-attempt
@@ -96,7 +97,10 @@ console.log('SolutionStubQuery', solutionStubQuery);
 	console.log('Contest', contest);
 	console.log('Content', content);
 	const handleCloseApp = () => {
-
+		
+		localStorage.removeItem("contestId");
+  localStorage.removeItem("contentId");
+  localStorage.removeItem("cb_auth");
 		window.electron.closeApp(); 
 	  };
 	 
@@ -121,11 +125,11 @@ console.log('SolutionStubQuery', solutionStubQuery);
 						<Button
 							variant="contained"
 							color="primary"
-							onClick={() =>
-								contestAttemptMutation.mutate(
-									currentAttemptQuery.data?.id as string
-								)
-							}
+							// onClick={() =>
+							// 	// contestAttemptMutation.mutate(
+							// 	// 	currentAttemptQuery.data?.id as string
+							// 	// )
+							// }
 						>
 							Submit
 						</Button>

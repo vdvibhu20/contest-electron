@@ -1,36 +1,48 @@
-import {app,shell ,BrowserWindow, ipcMain} from 'electron';
+import {app,shell ,BrowserWindow, ipcMain,globalShortcut,dialog} from 'electron';
 import path from 'path';
 import { isDev } from './util.js';
 import { getPreloadPath } from './pathResolver.js';
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import localShortcut from 'electron-localshortcut';
-
+import { platform } from 'os';
+console.log()
 let mainWindow: Electron.BrowserWindow | null;
 let deepLinkData: { cb_auth: string; contestId: string; contentId: string } | null = null;
 let isMainWindowLoaded = false;
-
+let isAppReady = false;
+let isKioskMode = false;
 function createWindow(): void {
   mainWindow = new BrowserWindow({
     show: false,
     titleBarStyle: 'hidden',
+    fullscreen:true,
+    kiosk:true,
+    
+    // frame: false,
+    focusable:true,
     webPreferences: {
       preload: getPreloadPath(),
+      // devTools: true,
 
     },
   });
 
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('ready-to-show', () => {
     mainWindow?.maximize();
     mainWindow?.show();
   });
+  
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url);
     return { action: 'deny' };
   });
 
+
+ 
+  
   mainWindow.webContents.on('did-finish-load', () => {
     isMainWindowLoaded = true;
     if (deepLinkData) {
@@ -39,12 +51,12 @@ function createWindow(): void {
     }
   });
 
+
   if (isDev()) {
     mainWindow.loadURL('http://localhost:5173');
-    let cb_auth =
-    'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJ1c2VybmFtZSI6InNwYXJzaGdvZWxrIiwiZmlyc3RuYW1lIjoiU3BhcnNoIiwibGFzdG5hbWUiOiJHb2VsIiwiZ2VuZGVyIjoiTUFMRSIsInBob3RvIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jS3R2SUNXWTRHcHJucFhTWkxpVmY2bi1pdTNablFlTkRrNUJEaFJIQ2pqdlBBWTFmT1c9czk2LWMiLCJlbWFpbCI6InNwYXJzaGdvZWxrQGdtYWlsLmNvbSIsIm1vYmlsZV9udW1iZXIiOiIrOTEtOTMxOTU1MTYwOCIsIndoYXRzYXBwX251bWJlciI6bnVsbCwicm9sZSI6bnVsbCwidmVyaWZpZWRlbWFpbCI6InNwYXJzaGdvZWxrQGdtYWlsLmNvbSIsInZlcmlmaWVkbW9iaWxlIjpudWxsLCJyZWZlcnJhbENvZGUiOiJTUEExSkoiLCJyZWZlcnJlZEJ5IjpudWxsLCJncmFkdWF0aW9uWWVhciI6MjAyNSwiYXBwYXJlbEdvb2RpZXNTaXplIjpudWxsLCJtYXJrZXRpbmdfbWV0YSI6bnVsbCwiY3JlYXRlZEF0IjoiMjAyNS0wMi0xMlQxMDoyMzo1My40MjRaIiwidXBkYXRlZEF0IjoiMjAyNS0wMi0xMlQxMDoyNDozNC44MjFaIiwiZGVsZXRlZEF0IjpudWxsLCJjbGllbnQiOiJ3ZWIiLCJjbGllbnROYW1lIjoibG9jYWxob3N0IiwiY2xpZW50SWQiOiIxMjM0NTY3ODkwIiwidXVpZCI6IjE3ZjRiMDIzLWE4YjQtNDY3Yi05NzhlLWEzNDcwZDRlZmVlYSIsInNlc3Npb25TdGFydGVkQXQiOiIyMDI1LTA0LTA4VDEwOjA4OjQwLjM2NFoiLCJpYXQiOjE3NDQxMDY5MjAsImV4cCI6MTc0NDE5MzMyMH0.ubW341wFBwNGVzRM2-xD8__SvNCMzTYbTKWbESCHXV3H-k7JzKb_eYsN4QYlalHyNBxSc7u41nbxzVz8w2Oxwu1TqIgDAgGJXDeSQwsZzSt5TnjpIDuxNr50tigdpwr61P51aMuwvsiw9Jcvv5swsH52c2bM32aSHp-Cx12KFy0KC6iCUDZ3GlAw_16C_iCzNwxuKIH7efut-koJSBolWAaYy7IbAAsYt0YarXOPdEc-DUWju4tqyr-fRfYyjXeVcBjSAMC11XvjG6uTuxyzp072kswnWK69vhQC_S9qLZLGmFCLTzAXs5nLTYEjLhFvXIs0mDuxvGlWjKQg5psvUg';
-  let contestId = '6';
-  let contentId = '2';
+    let cb_auth=''
+  let contestId = '';
+  let contentId = '';
   mainWindow.webContents.on('did-finish-load', () => {
     console.log("Sending deep-link-data event");
     mainWindow?.webContents.send("deep-link-data", { cb_auth, contestId, contentId });
@@ -52,56 +64,11 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(path.join(app.getAppPath() + '/dist-react/index.html'));
   }
+  
 }
-// function createWindow(): void {
-//   mainWindow = new BrowserWindow({
-//     fullscreen: true,
-//     frame: false,
-//     alwaysOnTop: true,
-//     skipTaskbar: true,
-//     webPreferences: {
-//       preload: getPreloadPath(),
-//       contextIsolation: true,
-//       devTools: false,
-//       nodeIntegration: false,
-     
-//     },
-//   });
-
-//   mainWindow.setMenuBarVisibility(false);
-
-//   mainWindow.on('ready-to-show', () => {
-//     mainWindow?.maximize();
-//     mainWindow?.show();
-//   });
-
-//   mainWindow.on('blur', () => {
-//     mainWindow?.focus(); // Auto-refocus if user tries to switch apps
-//   });
 
 
 
-//   mainWindow.webContents.on('context-menu', (e) => e.preventDefault());
-
-//   mainWindow.webContents.on('before-input-event', (event, input) => {
-//     const devToolCombos = [
-//       (input.key === 'F12'),
-//       (input.control || input.meta) && input.shift && input.key.toLowerCase() === 'i'
-//     ];
-//     if (devToolCombos.some(Boolean)) event.preventDefault();
-//   });
-
-//   mainWindow.webContents.setWindowOpenHandler((details) => {
-//     shell.openExternal(details.url);
-//     return { action: 'deny' };
-//   });
-
-//   if (isDev()) {
-//     mainWindow.loadURL('http://localhost:5173');
-//   } else {
-//     mainWindow.loadFile(path.join(app.getAppPath(), 'dist-react/index.html'));
-//   }
-// }
 
 function handleDeepLink(url: string) {
   console.log('Received deep link:', url);
@@ -128,38 +95,92 @@ app.on("open-url", (event, url) => {
   handleDeepLink(url);
 });
 
+const gotTheLock = app.requestSingleInstanceLock();
 
-app.whenReady().then(() => {
-  electronApp.setAppUserModelId("com.electron");
-
-  app.on("browser-window-created", (_, window) => {
-    optimizer.watchWindowShortcuts(window);
+if (!gotTheLock) {
+  app.quit(); // Another instance is running, quit this one
+} else {
+  app.on('second-instance', () => {
+    // Someone tried to open a second instance, focus the first one
+    if (mainWindow) {
+      if (mainWindow?.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
   });
 
-  ipcMain.on('close-app', () => {
-    app.quit();
-  });
 
-  createWindow();
-  mainWindow?.webContents.on('devtools-opened', () => {
-    console.log("DevTools were forcibly opened — closing...");
-    mainWindow?.webContents.closeDevTools();
-  });
+  app.whenReady().then(() => {
+    electronApp.setAppUserModelId("com.electron");
   
-  app.on("activate", function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    app.on("browser-window-created", (_, window) => {
+      optimizer.watchWindowShortcuts(window);
+    });
+  
+    ipcMain.on('close-app', () => {
+      
+      app.quit();
+    });
+    ipcMain.on('enable-kiosk', () => {
+      isKioskMode = true;
+      mainWindow?.setKiosk(true);
+    });
+    
+    ipcMain.on('disable-kiosk', () => {
+      isKioskMode = false;
+      mainWindow?.setKiosk(false);
+    });
+    isAppReady = true;
+    createWindow();
+    mainWindow?.setKiosk(true);
+
+    // mainWindow?.webContents.on('devtools-opened', () => {
+    //   console.log("DevTools were forcibly opened — closing...");
+    //   mainWindow?.webContents.closeDevTools();
+    // });
+    
+    //test
+    mainWindow?.on('focus', () => {
+      console.log('Window is focused');
+    });
+    
+    mainWindow?.on('blur', () => {
+      console.log('Window lost focus');
+      mainWindow?.setAlwaysOnTop(true);
+    });
+    
+    if (mainWindow)
+      mainWindow.on('blur', async () => {
+        // if (!isAppReady || !isKioskMode) return;
+        if (!isAppReady) return;
+        if(mainWindow)
+        await dialog.showMessageBox(mainWindow, {
+          type: 'warning',
+          buttons: ['OK'],
+          title: 'Warning',
+          message: 'Don\'t try to change tabs when you are attending a contest!',
+          noLink: true,
+        });
+    
+        mainWindow?.setAlwaysOnTop(true);
+        mainWindow?.focus();
+      });
+    
+    
+    app.on("activate", function () {
+      if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+  
+    // if (process.argv.length > 1) {
+    //   handleDeepLink(process.argv[1]);
+    // }
+    const deepLinkArg = process.argv.find(arg => arg.startsWith("electron-app://"));
+    if (deepLinkArg) {
+      handleDeepLink(deepLinkArg);
+    }
+  
+  
   });
-
-  // if (process.argv.length > 1) {
-  //   handleDeepLink(process.argv[1]);
-  // }
-  const deepLinkArg = process.argv.find(arg => arg.startsWith("electron-app://"));
-  if (deepLinkArg) {
-    handleDeepLink(deepLinkArg);
-  }
-
-
-});
+}
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
